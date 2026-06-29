@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   update-schedule:
@@ -20,15 +22,12 @@ jobs:
     steps:
       - name: チェックアウト
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 月末日チェック（scheduleトリガー時のみ）
         if: github.event_name == 'schedule'
         run: |
           TOMORROW=$(date -d '+1 day' +%d)
           if [ "$TOMORROW" != "01" ]; then
-            echo "今日は月末日ではありません"
             echo "SKIP=true" >> $GITHUB_ENV
           else
             echo "SKIP=false" >> $GITHUB_ENV
@@ -65,3 +64,31 @@ jobs:
             git commit -m "auto: スケジュール更新 $(date '+%Y%m')"
             git push
           fi
+
+  deploy:
+    needs: update-schedule
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Pages設定
+        uses: actions/configure-pages@v4
+
+      - name: Pagesアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: デプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
