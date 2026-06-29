@@ -1,0 +1,11 @@
+{
+  "name": "dance-schedule-generator",
+  "version": "1.0.0",
+  "description": "ダンススタジオスケジュール自動生成",
+  "main": "generate.js",
+  "type": "module",
+  "dependencies": {
+    "googleapis": "^140.0.0",
+    "@anthropic-ai/sdk": "^0.27.0"
+  }
+}

@@ -1,0 +1,79 @@
+name: 月次ダンススケジュール更新
+
+on:
+  # 毎月末日 23:00 JST (14:00 UTC) に自動実行
+  schedule:
+    - cron: '0 14 28-31 * *'
+  # 手動実行も可能
+  workflow_dispatch:
+    inputs:
+      yyyymm:
+        description: '対象年月 (例: 202608)'
+        required: false
+        default: ''
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    # 月末日のみ実行（28〜31日のうち翌日が1日のもの）
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: 月末日チェック（scheduleトリガー時のみ）
+        if: github.event_name == 'schedule'
+        run: |
+          # 翌日が1日でなければスキップ
+          TOMORROW=$(date -d '+1 day' +%d)
+          if [ "$TOMORROW" != "01" ]; then
+            echo "今日は月末日ではありません (明日: $TOMORROW日)"
+            echo "SKIP=true" >> $GITHUB_ENV
+          else
+            echo "今日は月末日です。処理を開始します。"
+            echo "SKIP=false" >> $GITHUB_ENV
+          fi
+
+      - name: Node.js セットアップ
+        if: env.SKIP != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 依存パッケージインストール
+        if: env.SKIP != 'true'
+        run: |
+          cd scripts
+          npm install
+
+      - name: スケジュールHTML生成
+        if: env.SKIP != 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_YYYYMM: ${{ github.event.inputs.yyyymm }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          cd scripts
+          node generate.js
+
+      - name: 生成ファイルをコミット&プッシュ
+        if: env.SKIP != 'true'
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "変更なし"
+          else
+            YYYYMM=$(node -e "
+              const d = new Date();
+              d.setMonth(d.getMonth() + 1);
+              const y = d.getFullYear();
+              const m = String(d.getMonth()+1).padStart(2,'0');
+              console.log(y+m);
+            ")
+            git commit -m "auto: ${YYYYMM} スケジュール更新"
+            git push
+          fi
