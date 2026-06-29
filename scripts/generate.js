@@ -3,11 +3,6 @@ import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
 import path from 'path';
 
-// ==================== 設定 ====================
-const GDRIVE_FOLDER_ID = process.env.GDRIVE_FOLDER_ID; // Dance_Schedule_Asistant フォルダID
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-
-// 対象年月を決定（手動指定 or 翌月）
 function getTargetYYYYMM() {
   if (process.env.TARGET_YYYYMM) return process.env.TARGET_YYYYMM;
   const d = new Date();
@@ -17,9 +12,9 @@ function getTargetYYYYMM() {
   return `${y}${m}`;
 }
 
-// ==================== Google Drive 認証 ====================
 function getGDriveClient() {
   const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+  console.log('サービスアカウント:', creds.client_email);
   const auth = new google.auth.GoogleAuth({
     credentials: creds,
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
@@ -27,16 +22,16 @@ function getGDriveClient() {
   return google.drive({ version: 'v3', auth });
 }
 
-// ==================== フォルダ検索 ====================
 async function findFolder(drive, parentId, name) {
+  console.log(`フォルダ検索: "${name}" in ${parentId}`);
   const res = await drive.files.list({
     q: `'${parentId}' in parents and name = '${name}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
     fields: 'files(id, name)',
   });
+  console.log('結果:', JSON.stringify(res.data.files));
   return res.data.files?.[0] ?? null;
 }
 
-// ==================== 画像ファイル一覧取得 ====================
 async function listImages(drive, folderId) {
   const res = await drive.files.list({
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed = false`,
@@ -46,29 +41,20 @@ async function listImages(drive, folderId) {
   return res.data.files ?? [];
 }
 
-// ==================== 画像をbase64でダウンロード ====================
 async function downloadImageAsBase64(drive, fileId, mimeType) {
   const res = await drive.files.get(
     { fileId, alt: 'media' },
     { responseType: 'arraybuffer' }
   );
-  const buffer = Buffer.from(res.data);
-  return buffer.toString('base64');
+  return Buffer.from(res.data).toString('base64');
 }
 
-// ==================== Claude で画像解析 ====================
 async function analyzeImagesWithClaude(images) {
-  const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
-
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const imageContent = images.map(img => ({
     type: 'image',
-    source: {
-      type: 'base64',
-      media_type: img.mimeType,
-      data: img.base64,
-    },
+    source: { type: 'base64', media_type: img.mimeType, data: img.base64 },
   }));
-
   const prompt = `これらはダンススタジオの月次スケジュール画像です。
 全画像から以下のJSON形式でスケジュールデータを抽出してください。
 
@@ -93,36 +79,26 @@ async function analyzeImagesWithClaude(images) {
   }
 }
 
-注意事項:
+注意:
 - キーは日付（数字の文字列）
-- genreにはレベル（超入門/初心者向け/入初級/初級/中級/経験者向け/基礎）も含める
-- 曲名・アーティストが不明な場合は空文字
+- genreにレベルも含める（超入門/初心者向け/入初級/初級/中級/経験者向け/基礎）
+- 曲名・アーティストが不明なら空文字
 - 土曜日は時間帯が複数あるので全て抽出
-- 画像が読み取れない部分はスキップ
-- 余分なテキストは一切出力しない、JSONのみ`;
+- JSONのみ出力、余分なテキスト不要`;
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 4000,
-    messages: [
-      {
-        role: 'user',
-        content: [...imageContent, { type: 'text', text: prompt }],
-      },
-    ],
+    messages: [{ role: 'user', content: [...imageContent, { type: 'text', text: prompt }] }],
   });
-
   const text = response.content[0].text;
-  // JSONブロック抽出
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Claude からのJSON抽出失敗:\n' + text);
+  if (!match) throw new Error('JSON抽出失敗:\n' + text);
   return JSON.parse(match[0]);
 }
 
-// ==================== HTML生成 ====================
 function generateHTML(year, month, scheduleByDay) {
   const scheduleJSON = JSON.stringify(scheduleByDay);
-
   return `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -165,15 +141,15 @@ function gc(genre){
   return {bg:"#94A3B8",light:"#F1F5F9",text:"#334155"};
 }
 function bdg(text){
-  if(text.includes("超入門"))       return{label:"超入門",  color:"#22C55E"};
-  if(text.includes("初心者向け"))   return{label:"初心者",  color:"#3B82F6"};
-  if(text.includes("入初級"))       return{label:"入初級",  color:"#6366F1"};
+  if(text.includes("超入門"))return{label:"超入門",color:"#22C55E"};
+  if(text.includes("初心者向け"))return{label:"初心者",color:"#3B82F6"};
+  if(text.includes("入初級"))return{label:"入初級",color:"#6366F1"};
   if(text.includes("中級チャレンジ"))return{label:"中級挑戦",color:"#F59E0B"};
-  if(text.includes("初級"))         return{label:"初級",    color:"#8B5CF6"};
-  if(text.includes("中級"))         return{label:"中級",    color:"#EF4444"};
-  if(text.includes("経験者向け"))   return{label:"経験者",  color:"#DC2626"};
-  if(text.includes("基礎"))         return{label:"基礎",    color:"#10B981"};
-  if(text.includes("ペア振り"))     return{label:"ペア♀限定",color:"#EC4899"};
+  if(text.includes("初級"))return{label:"初級",color:"#8B5CF6"};
+  if(text.includes("中級"))return{label:"中級",color:"#EF4444"};
+  if(text.includes("経験者向け"))return{label:"経験者",color:"#DC2626"};
+  if(text.includes("基礎"))return{label:"基礎",color:"#10B981"};
+  if(text.includes("ペア振り"))return{label:"ペア♀限定",color:"#EC4899"};
   return null;
 }
 const yt=(s,a)=>"https://www.youtube.com/results?search_query="+encodeURIComponent((s||"")+" "+(a||""));
@@ -219,7 +195,7 @@ function Modal({day,data,onClose}){
 function TeacherFilter({teachers,selected,onToggle,onClear}){
   return React.createElement("div",{style:{background:"#fff",borderRadius:10,padding:12,marginBottom:12,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}},
     React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}},
-      React.createElement("span",{style:{fontWeight:700,fontSize:12,color:"#374151"}},"👩‍🏫 先生で絞り込み"),
+      React.createElement("span",{style:{fontWeight:700,fontSize:12,color:"#374151"}},"👩\u200d🏫 先生で絞り込み"),
       selected.size>0&&React.createElement("button",{onClick:onClear,style:{fontSize:11,color:"#6B7280",background:"none",border:"1px solid #D1D5DB",borderRadius:5,padding:"1px 7px",cursor:"pointer"}},"クリア")
     ),
     React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:5}},
@@ -243,10 +219,7 @@ function App(){
     })));
     return Array.from(s).sort();
   },[]);
-  const match=t=>{
-    if(selT.size===0)return true;
-    return t.split(/[&＆、,，]/).map(x=>x.trim()).some(x=>selT.has(x));
-  };
+  const match=t=>{if(selT.size===0)return true;return t.split(/[&＆、,，]/).map(x=>x.trim()).some(x=>selT.has(x));};
   const fSD=useMemo(()=>{
     if(selT.size===0)return SD;
     const r={};
@@ -271,11 +244,9 @@ function App(){
         React.createElement("h1",{style:{fontSize:20,fontWeight:900,color:"#1F2937"}},"💃 "+YEAR+"年"+MONTH+"月 ダンスクラス"),
         React.createElement("p",{style:{color:"#9CA3AF",fontSize:12,marginTop:3}},"日付をタップしてクラス詳細を確認")
       ),
-      React.createElement(TeacherFilter,{
-        teachers:allT,selected:selT,
+      React.createElement(TeacherFilter,{teachers:allT,selected:selT,
         onToggle:t=>setSelT(prev=>{const n=new Set(prev);n.has(t)?n.delete(t):n.add(t);return n;}),
-        onClear:()=>setSelT(new Set())
-      }),
+        onClear:()=>setSelT(new Set())}),
       React.createElement("div",{style:{background:"#fff",borderRadius:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",overflow:"hidden",marginBottom:12}},
         React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},
           wl.map((w,i)=>React.createElement("div",{key:w,style:{textAlign:"center",padding:"8px 0",fontSize:11,fontWeight:700,
@@ -283,25 +254,20 @@ function App(){
         ),
         React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},
           cells.map((d,idx)=>{
-            const hasF=d&&fSD[d]!==undefined;
-            const hasAny=d&&SD[d]!==undefined;
+            const hasF=d&&fSD[d]!==undefined,hasAny=d&&SD[d]!==undefined;
             const dow=idx%7,isSat=dow===5,isSun=dow===6;
-            return React.createElement("div",{
-              key:idx,onClick:hasAny?()=>setDay(d):undefined,
+            return React.createElement("div",{key:idx,onClick:hasAny?()=>setDay(d):undefined,
               style:{minHeight:56,padding:5,borderRight:"1px solid #F3F4F6",borderBottom:"1px solid #F3F4F6",
-                cursor:hasAny?"pointer":"default",background:"#fff",transition:"background 0.1s"}
-            },
+                cursor:hasAny?"pointer":"default",background:"#fff"}},
               d&&React.createElement("div",{style:{fontWeight:600,fontSize:12,
                 color:isSat?"#3B82F6":isSun?"#EF4444":"#374151",
-                width:22,height:22,borderRadius:"50%",background:"transparent",
-                display:"flex",alignItems:"center",justifyContent:"center",marginBottom:3}},d),
+                width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:3}},d),
               hasF&&React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:2}},
                 fSD[d].flatMap(s=>s.classes).slice(0,5).map((cls,i)=>{
                   const c=gc(cls.genre);
                   return React.createElement("div",{key:i,style:{width:7,height:7,borderRadius:"50%",background:c.bg}});
                 })
-              ),
-              !hasF&&d&&SD[d]&&selT.size>0&&React.createElement("div",{style:{fontSize:9,color:"#E5E7EB"}},"—")
+              )
             );
           })
         )
@@ -322,34 +288,30 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 </html>`;
 }
 
-// ==================== メイン処理 ====================
 async function main() {
   const yyyymm = getTargetYYYYMM();
   const year = parseInt(yyyymm.slice(0, 4));
   const month = parseInt(yyyymm.slice(4, 6));
   console.log(`対象年月: ${year}年${month}月 (${yyyymm})`);
+  console.log('GDRIVE_FOLDER_ID:', process.env.GDRIVE_FOLDER_ID);
+  console.log('ANTHROPIC_API_KEY 設定済み:', !!process.env.ANTHROPIC_API_KEY);
 
-  // Google Drive クライアント
   const drive = getGDriveClient();
 
-  // Schedule_img フォルダを探す
   console.log('Schedule_img フォルダを検索中...');
-  const scheduleImgFolder = await findFolder(drive, GDRIVE_FOLDER_ID, 'Schedule_img');
-  if (!scheduleImgFolder) throw new Error('Schedule_img フォルダが見つかりません');
+  const scheduleImgFolder = await findFolder(drive, process.env.GDRIVE_FOLDER_ID, 'Schedule_img');
+  if (!scheduleImgFolder) throw new Error('Schedule_img フォルダが見つかりません。フォルダの共有設定を確認してください。');
 
-  // yyyymm サブフォルダを探す
   console.log(`${yyyymm} フォルダを検索中...`);
   const monthFolder = await findFolder(drive, scheduleImgFolder.id, yyyymm);
   if (!monthFolder) throw new Error(`${yyyymm} フォルダが見つかりません`);
 
-  // 画像一覧取得
-  console.log('画像ファイルを取得中...');
+  console.log('画像一覧取得中...');
   const imageFiles = await listImages(drive, monthFolder.id);
-  if (imageFiles.length === 0) throw new Error('画像ファイルが見つかりません');
+  if (imageFiles.length === 0) throw new Error('画像が見つかりません');
   console.log(`${imageFiles.length}枚の画像を発見`);
 
-  // 画像をbase64でダウンロード
-  console.log('画像をダウンロード中...');
+  console.log('画像ダウンロード中...');
   const images = await Promise.all(
     imageFiles.map(async (f) => ({
       name: f.name,
@@ -358,35 +320,24 @@ async function main() {
     }))
   );
 
-  // Claude で解析
-  console.log('Claude でスケジュールを解析中...');
+  console.log('Claude で解析中...');
   const result = await analyzeImagesWithClaude(images);
   console.log(`抽出完了: ${Object.keys(result.schedule).length}日分`);
 
-  // HTML生成
-  console.log('HTML を生成中...');
   const html = generateHTML(year, month, result.schedule);
-
-  // 出力先ディレクトリ作成
   const outDir = path.join(process.cwd(), '..', yyyymm);
   fs.mkdirSync(outDir, { recursive: true });
-
-  // index.html を月別フォルダに保存
   const outPath = path.join(outDir, 'index.html');
   fs.writeFileSync(outPath, html, 'utf-8');
   console.log(`✅ 生成完了: ${outPath}`);
 
-  // ルートのindex.htmlも最新月にリダイレクト
-  const rootIndex = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=/${yyyymm}/">
-<title>ダンススタジオ スケジュール</title></head>
-<body><a href="/${yyyymm}/">最新スケジュールはこちら</a></body></html>`;
+  const rootIndex = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=/${yyyymm}/"><title>ダンススタジオ スケジュール</title></head><body><a href="/${yyyymm}/">最新スケジュールはこちら</a></body></html>`;
   fs.writeFileSync(path.join(process.cwd(), '..', 'index.html'), rootIndex, 'utf-8');
   console.log('✅ ルートindex.html更新完了');
 }
 
 main().catch(err => {
-  console.error('❌ エラー:', err);
+  console.error('❌ エラー:', err.message);
+  console.error(err.stack);
   process.exit(1);
 });
