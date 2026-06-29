@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダンススタジオ 2026年7月スケジュール</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #F1F5F9; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; }
+  a:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+
+const {
+  useState,
+  useMemo
+} = React;
+const YEAR = 2026;
+const MONTH = 7;
+const GENRE_COLORS = {
+  hiphop: {
+    bg: "#FF6B9D",
+    light: "#FFE0ED",
+    text: "#8B0038"
+  },
+  jazzfunk: {
+    bg: "#A855F7",
+    light: "#F3E8FF",
+    text: "#5B0EA6"
+  },
+  jazz: {
+    bg: "#3B82F6",
+    light: "#DBEAFE",
+    text: "#1E3A8A"
+  },
+  lock: {
+    bg: "#F59E0B",
+    light: "#FEF3C7",
+    text: "#78350F"
+  },
+  "r&b": {
+    bg: "#10B981",
+    light: "#D1FAE5",
+    text: "#064E3B"
+  },
+  house: {
+    bg: "#6366F1",
+    light: "#E0E7FF",
+    text: "#312E81"
+  },
+  pop: {
+    bg: "#EC4899",
+    light: "#FCE7F3",
+    text: "#831843"
+  },
+  "soul&hiphop": {
+    bg: "#EF4444",
+    light: "#FEE2E2",
+    text: "#7F1D1D"
+  },
+  waack: {
+    bg: "#8B5CF6",
+    light: "#EDE9FE",
+    text: "#4C1D95"
+  },
+  soul: {
+    bg: "#F97316",
+    light: "#FFEDD5",
+    text: "#7C2D12"
+  },
+  "jazzfunk&heel": {
+    bg: "#DB2777",
+    light: "#FCE7F3",
+    text: "#831843"
+  },
+  vogue: {
+    bg: "#7C3AED",
+    light: "#EDE9FE",
+    text: "#4C1D95"
+  }
+};
+function getGenreColor(genre) {
+  const key = genre.toLowerCase().replace(/\s+/g, "");
+  for (const [k, v] of Object.entries(GENRE_COLORS)) {
+    if (key.includes(k.replace(/&/g, "").replace(/\s+/g, ""))) return v;
+  }
+  return {
+    bg: "#94A3B8",
+    light: "#F1F5F9",
+    text: "#334155"
+  };
+}
+function getLevelBadge(text) {
+  if (text.includes("超入門")) return {
+    label: "超入門",
+    color: "#22C55E"
+  };
+  if (text.includes("初心者向け")) return {
+    label: "初心者",
+    color: "#3B82F6"
+  };
+  if (text.includes("入初級")) return {
+    label: "入初級",
+    color: "#6366F1"
+  };
+  if (text.includes("中級チャレンジ")) return {
+    label: "中級挑戦",
+    color: "#F59E0B"
+  };
+  if (text.includes("初級")) return {
+    label: "初級",
+    color: "#8B5CF6"
+  };
+  if (text.includes("中級")) return {
+    label: "中級",
+    color: "#EF4444"
+  };
+  if (text.includes("経験者向け")) return {
+    label: "経験者",
+    color: "#DC2626"
+  };
+  if (text.includes("基礎")) return {
+    label: "基礎",
+    color: "#10B981"
+  };
+  if (text.includes("ペア振り")) return {
+    label: "ペア♀限定",
+    color: "#EC4899"
+  };
+  return null;
+}
+function ytUrl(song, artist) {
+  return "https://www.youtube.com/results?search_query=" + encodeURIComponent((song || "") + " " + (artist || ""));
+}
+
+// ========== SCHEDULE DATA ==========
+const scheduleByDay = {
+  // 火曜日
+  7: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "hiphop 初心者向け",
+      teacher: "ちか",
+      song: "Dance Forever",
+      artist: "SIXTONES"
+    }]
+  }, {
+    time: "20:40〜22:30",
+    classes: [{
+      genre: "hiphop 経験者向け",
+      teacher: "みつ",
+      song: "ただ君に晴れ",
+      artist: "ヨルシカ"
+    }]
+  }],
+  14: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "hiphop 入初級",
+      teacher: "みさき",
+      song: "(feat. kZm, PETZ, JNKMN, Awich & Mony Horse)",
+      artist: "YENTOWN"
+    }]
+  }, {
+    time: "20:40〜22:30",
+    classes: [{
+      genre: "hiphop 経験者向け",
+      teacher: "みつ",
+      song: "タマシイレボリューション",
+      artist: "Superfly"
+    }]
+  }],
+  21: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "hiphop 入初級",
+      teacher: "みさき",
+      song: "GOOD DAY",
+      artist: "Mrs. GREEN APPLE"
+    }]
+  }, {
+    time: "20:40〜22:30",
+    classes: [{
+      genre: "hiphop 経験者向け",
+      teacher: "みつ",
+      song: "mercedes",
+      artist: "DJ kanji"
+    }]
+  }],
+  28: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "hiphop 初心者向け",
+      teacher: "ちか",
+      song: "花火",
+      artist: "aiko"
+    }]
+  }, {
+    time: "20:40〜22:30",
+    classes: [{
+      genre: "hiphop 経験者向け",
+      teacher: "みつ",
+      song: "愛が灯る",
+      artist: "ロクデナシ"
+    }]
+  }],
+  // 水曜日
+  // 15日
+  15: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazzfunk",
+      teacher: "",
+      song: "Shake it!",
+      artist: "SaucyDog"
+    }, {
+      genre: "r&b",
+      teacher: "でいかつ",
+      song: "Shake it!",
+      artist: "SaucyDog"
+    }, {
+      genre: "hiphop 中級",
+      teacher: "みさき",
+      song: "BASH BASH (feat. JP THE WAVY & Awich)",
+      artist: "LANA"
+    }]
+  }, {
+    time: "21:00〜22:30",
+    classes: [{
+      genre: "jazzfunk",
+      teacher: "",
+      song: "whiskey",
+      artist: "marian hill"
+    }]
+  }],
+  // 18日水 → 実際は水曜18日
+  18: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "r&b",
+      teacher: "でいかつ",
+      song: "Mela!",
+      artist: "緑黄色社会"
+    }]
+  }],
+  22: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "r&b",
+      teacher: "ゆめ",
+      song: "悲しい歌がある理由",
+      artist: "ヒグチアイ"
+    }, {
+      genre: "hiphop 中級",
+      teacher: "みさき",
+      song: "Not Like Us",
+      artist: "ケンドリック・ラマー"
+    }]
+  }],
+  29: [{
+    time: "21:00〜22:30",
+    classes: [{
+      genre: "jazzfunk",
+      teacher: "YUNA",
+      song: "RUNWAY",
+      artist: "レディーガガ & doechii"
+    }]
+  }],
+  // 木曜日
+  2: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazzfunk",
+      teacher: "",
+      song: "るっせえ女",
+      artist: "ヤングスキニー"
+    }, {
+      genre: "jazz",
+      teacher: "",
+      song: "普通なんていらないよ",
+      artist: "TENSONG"
+    }]
+  }],
+  16: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "r&b",
+      teacher: "ゆめ",
+      song: "悲しい歌がある理由",
+      artist: "ヒグチアイ"
+    }]
+  }],
+  23: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazzfunk",
+      teacher: "503",
+      song: "Rain on me",
+      artist: "Lady GaGa & Ariana Grande"
+    }]
+  }],
+  30: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz",
+      teacher: "",
+      song: "ノンフィクション",
+      artist: "平井堅"
+    }]
+  }],
+  // 金曜日
+  3: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz",
+      teacher: "しほ",
+      song: "長く短い祭り",
+      artist: "椎名林檎"
+    }]
+  }],
+  10: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz",
+      teacher: "しほ",
+      song: "青藍遊泳",
+      artist: "にしな"
+    }]
+  }],
+  17: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz 初級",
+      teacher: "しほ",
+      song: "すずめ",
+      artist: "RADWIMPS"
+    }]
+  }],
+  24: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz",
+      teacher: "しほ",
+      song: "Reason",
+      artist: "ゆず"
+    }]
+  }],
+  31: [{
+    time: "20:30〜22:00",
+    classes: [{
+      genre: "jazz",
+      teacher: "しほ",
+      song: "UO",
+      artist: "Mrs. GREEN APPLE"
+    }]
+  }],
+  // 土曜日 4日
+  4: [{
+    time: "16:40〜18:00",
+    classes: [{
+      genre: "hiphop 超入門",
+      teacher: "みつ",
+      song: "ダンスの基礎をゆっくり丁寧に!",
+      artist: ""
+    }]
+  }, {
+    time: "18:10〜19:30",
+    classes: [{
+      genre: "hiphop 初心者向け",
+      teacher: "みつ",
+      song: "青と夏",
+      artist: "Mrs.green apple"
+    }, {
+      genre: "jazzfunk 初心者向け",
+      teacher: "まい&ゆーか",
+      song: "",
+      artist: ""
+    }, {
+      genre: "hiphop",
+      teacher: "ゆーき",
+      song: "今夜はブギーバック",
+      artist: "KREVA"
+    }, {
+      genre: "jazz",
+      teacher: "しほ",
+      song: "DSORANJI",
+      artist: "MRS.GREEN APPLE"
+    }, {
+      genre: "lock 基礎",
+      teacher: "だいちゃん",
+      song: "LOCKの基礎技をゆっくり解説!",
+      artist: ""
+    }]
+  }, {
+    time: "19:30〜21:00",
+    classes: [{
+      genre: "hiphop 入初級",
+      teacher: "みさき",
+      song: "SUNSET (feat. 10 & Yo-Sea)",
+      artist: "Gottz"
+    }, {
+      genre: "jazzfunk 入初級",
+      teacher: "ちひろ",
+      song: "熱帯夜",
+      artist: "RIP SLYME"
+    }, {
+      genre: "soul&hiphop",
+      teacher: "うめ",
+      song: "& SPINSHIP FEAT. VIVAOLA",
+      artist: "5**T KINGZ"
+    }, {
+      genre: "jazz",
+      teacher: "ゆうせい",
+      song: "青と夏",
+      artist: "Mrs.green apple"
+    }, {
+      genre: "jazzfunk 中級チャレンジ",
+      teacher: "みう",
+      song: "真夏のSOUNDS GOOD!",
+      artist: "AKB48"
+    }]
+  }, {
+    time: "21:00〜22:30",
+    classes: [{
+      genre: "hiphop 初級",
+      teacher: "ちか",
+      song: "丸ノ内サディスティック",
+      artist: "椎名林檎"
+    }, {
+      genre: "hiphop 中級",
+      teacher: "みさき",
+      song: "OMATASE",
+      artist: "Tokyo Young Vision"
+    }, {
+      genre: "jazz",
+      teacher: "しほ&ゆうせい",
+      song: "コンパス・オブ・ユア・ハート",
+      artist: ""
+    }]
+  }, {
+    time: "22:45〜23:25",
+    classes: [{
+      genre: "jazzfunk&heel",
+      teacher: "ぱーぽー",
+      song: "River",
+      artist: "Bishop Briggs"
+    }, {
+      genre: "soul",
+      teacher: "まさにぃ",
+      song: "Boogie Oogie Dogie",
+      artist: "テイスト・オブ・ハニー"
+    }, {
+      genre: "r&b",
+      teacher: "でいかつ",
+      song: "変わらないもの",
+      artist: "上野大樹"
+    }, {
+      genre: "pop",
+      teacher: "にしこ",
+      song: "BOY",
+      artist: "VERO"
+    }]
+  }],
+  // 土曜日 11日
+  11: [{
+    time: "16:40〜18:00",
+    classes: [{
+      genre: "hiphop 超入門",
+      teacher: "でいかつ",
+      song: "ダンスの基礎をゆっくり丁寧に!",
+      artist: ""
+    }]
+  }, {
+    time: "18:10〜19:30",
+    classes: [{
+      genre: "hiphop 初心者向け",
+      teacher: "みさき",
+      song: "ハッピーソング",
+      artist: "東京ディズニーランド"
+    }, {
+      genre: "jazzfunk 初心者向け",
+      teacher: "まい",
+      song: "公然の秘密",
+      artist: "椎名林檎"
+    }, {
+      genre: "jazz",
+      teacher: "ゆうせい",
+      song: "虹",
+      artist: "菅田将暉"
+    }, {
+      genre: "r&b",
+      teacher: "でいかつ",
+      song: "memoria",
+      artist: "aile the shota"
+    }, {
+      genre: "hiphop",
+      teacher: "かずき",
+      song: "音に自由に乗ろう!",
+      artist: ""
+    }]
+  }, {
+    time: "19:30〜21:00",
+    classes: [{
+      genre: "hiphop 入初級",
+      teacher: "みさき",
+      song: "The Best of Both Worlds",
+      artist: "ハンナ・モンタナ"
+    }, {
+      genre: "hiphop ペア振り",
+      teacher: "まい&わたる",
+      song: "Taxi Blurr",
+      artist: "ジェイ・パーク"
+    }, {
+      genre: "jazzfunk 中級チャレンジ",
+      teacher: "みう",
+      song: "SAYONARA MAYBE",
+      artist: "NOMELON NOLEMON"
+    }, {
+      genre: "soul&hiphop",
+      teacher: "うめ",
+      song: "",
+      artist: ""
+    }]
+  }, {
+    time: "21:00〜22:30",
+    classes: [{
+      genre: "hiphop 初級",
+      teacher: "わたる",
+      song: "飾りじゃないのよ涙は / ツキヨミ",
+      artist: "King Gnu / King & Prince"
+    }, {
+      genre: "hiphop",
+      teacher: "ゆーき",
+      song: "",
+      artist: ""
+    }, {
+      genre: "jazz 初級",
+      teacher: "しほ",
+      song: "Party Up",
+      artist: "DMX"
+    }]
+  }, {
+    time: "22:45〜23:25",
+    classes: [{
+      genre: "waack",
+      teacher: "ももこ",
+      song: "Rakurai / わたしはわたしのためのわたしでありたい",
+      artist: "JASMINE, ASOBOISM / ヒグチアイ"
+    }, {
+      genre: "jazzfunk 初級",
+      teacher: "ぷー",
+      song: "It's Me",
+      artist: "ILLIT"
+    }]
+  }],
+  // 土曜日 18日 (scheduleByDay[18] は水曜と衝突するので土曜分は別キーで後でマージ)
+  // → 18日は水曜と土曜が同じ日にならないように、水曜18日のみ（土曜18日は別）
+  // 実際のカレンダー2026年7月: 18日は土曜日
+  // 水曜は15, 22, 29のみ → 18日は土曜に割り当て直す
+
+  // 土曜日 25日
+  25: [{
+    time: "16:40〜18:00",
+    classes: [{
+      genre: "hiphop 超入門",
+      teacher: "みつ",
+      song: "ダンスの基礎をゆっくり丁寧に!",
+      artist: ""
+    }]
+  }, {
+    time: "18:10〜19:30",
+    classes: [{
+      genre: "hiphop 初心者向け",
+      teacher: "でいかつ",
+      song: "Galway giri",
+      artist: "エドシーラン"
+    }, {
+      genre: "jazzfunk 初心者向け",
+      teacher: "まい",
+      song: "イケナイ太陽",
+      artist: "ORANGERANGE"
+    }, {
+      genre: "hiphop",
+      teacher: "かずき",
+      song: "音に自由に乗ろう!",
+      artist: ""
+    }, {
+      genre: "lock 基礎",
+      teacher: "だいちゃん",
+      song: "LOCKの基礎技をゆっくり解説!",
+      artist: ""
+    }, {
+      genre: "jazz",
+      teacher: "ゆうせい",
+      song: "ラストシーン",
+      artist: "菅田将暉"
+    }]
+  }, {
+    time: "19:30〜21:00",
+    classes: [{
+      genre: "hiphop 入初級",
+      teacher: "みさき",
+      song: "Vivid",
+      artist: "MAZZEL"
+    }, {
+      genre: "jazzfunk 入初級",
+      teacher: "ぷー",
+      song: "LEMONADE",
+      artist: "aespa"
+    }, {
+      genre: "jazz",
+      teacher: "あや",
+      song: "ひとりで生きていたならば",
+      artist: "SUPER BEAVER"
+    }, {
+      genre: "house",
+      teacher: "ジャパン",
+      song: "Old' On",
+      artist: "Jack Marlow"
+    }, {
+      genre: "pop",
+      teacher: "もりしー",
+      song: "Would You (feat. BVRGER)",
+      artist: "madd3e"
+    }]
+  }, {
+    time: "21:00〜22:30",
+    classes: [{
+      genre: "hiphop 初級",
+      teacher: "ちか&みさき",
+      song: "当日のお楽しみ!!",
+      artist: ""
+    }, {
+      genre: "hiphop 中級",
+      teacher: "みう",
+      song: "舞踏天国",
+      artist: "TOPHAMHAT-KYO"
+    }, {
+      genre: "r&b",
+      teacher: "でいかつ&ゆめ",
+      song: "声",
+      artist: "羊文学"
+    }]
+  }, {
+    time: "22:45〜23:25",
+    classes: [{
+      genre: "soul&hiphop",
+      teacher: "",
+      song: "Dance No More",
+      artist: "ハリー・スタイルズ"
+    }, {
+      genre: "waack",
+      teacher: "まさにぃ&ももこ",
+      song: "More than a fantasy-remix",
+      artist: "Livin out loud"
+    }]
+  }]
+};
+
+// 18日の土曜スケジュール（水曜18日を上書き）
+scheduleByDay[18] = [{
+  time: "16:40〜18:00",
+  classes: [{
+    genre: "hiphop 超入門",
+    teacher: "みつ",
+    song: "ダンスの基礎をゆっくり丁寧に!",
+    artist: ""
+  }]
+}, {
+  time: "18:10〜19:30",
+  classes: [{
+    genre: "hiphop 初心者向け",
+    teacher: "みつ",
+    song: "花に亡霊",
+    artist: "ヨルシカ"
+  }, {
+    genre: "jazzfunk",
+    teacher: "しゅう",
+    song: "オトナ遊び",
+    artist: ""
+  }, {
+    genre: "r&b",
+    teacher: "でいかつ",
+    song: "バランス",
+    artist: "THIS IS LAST"
+  }, {
+    genre: "lock 基礎",
+    teacher: "だいちゃん",
+    song: "LOCKの基礎技をゆっくり解説!",
+    artist: ""
+  }, {
+    genre: "jazz",
+    teacher: "あや",
+    song: "カイト",
+    artist: "嵐"
+  }]
+}, {
+  time: "19:30〜21:00",
+  classes: [{
+    genre: "hiphop 入初級",
+    teacher: "みさき",
+    song: "Kawasaki Drift",
+    artist: "BAD HOP"
+  }, {
+    genre: "jazzfunk 入初級",
+    teacher: "ゆめ",
+    song: "IS IT",
+    artist: "Tyla"
+  }, {
+    genre: "jazz",
+    teacher: "ゆうせい",
+    song: "高嶺の花子さん",
+    artist: "back number"
+  }, {
+    genre: "pop",
+    teacher: "にしこ",
+    song: "PSYCHO",
+    artist: "BABYMONSTER"
+  }]
+}, {
+  time: "21:00〜22:30",
+  classes: [{
+    genre: "hiphop 初級",
+    teacher: "ちか",
+    song: "CHOCOLATE",
+    artist: "ちゃんみな"
+  }, {
+    genre: "hiphop 中級",
+    teacher: "みさき",
+    song: "Get Back (feat. JUMADIBA & Watson) [Double Clapperz Remix]",
+    artist: "Ralph"
+  }, {
+    genre: "jazz",
+    teacher: "しほ",
+    song: "115万キロのフィルム",
+    artist: "Official髭男dism"
+  }]
+}, {
+  time: "22:45〜23:25",
+  classes: [{
+    genre: "house",
+    teacher: "よぎぼー",
+    song: "Danabi / friends",
+    artist: "Mr.Children / idan hana"
+  }, {
+    genre: "vogue",
+    teacher: "おはる",
+    song: "Abracadabra",
+    artist: "LADY GAGA"
+  }]
+}];
+
+// ========== COMPONENTS ==========
+
+function ClassCard({
+  cls
+}) {
+  const genreKey = cls.genre.toLowerCase().split(" ")[0].replace(/\s/g, "");
+  const color = getGenreColor(cls.genre);
+  const badge = getLevelBadge(cls.genre);
+  const url = ytUrl(cls.song, cls.artist);
+  return React.createElement("div", {
+    style: {
+      background: color.light,
+      border: "1px solid " + color.bg,
+      borderLeft: "4px solid " + color.bg,
+      borderRadius: "8px",
+      padding: "10px 12px",
+      marginBottom: "8px",
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      flexWrap: "wrap",
+      marginBottom: "4px"
+    }
+  }, React.createElement("span", {
+    style: {
+      background: color.bg,
+      color: "#fff",
+      fontSize: "11px",
+      fontWeight: "700",
+      padding: "2px 8px",
+      borderRadius: "20px",
+      whiteSpace: "nowrap"
+    }
+  }, cls.genre.split(" ")[0]), badge && React.createElement("span", {
+    style: {
+      background: badge.color,
+      color: "#fff",
+      fontSize: "10px",
+      fontWeight: "700",
+      padding: "1px 6px",
+      borderRadius: "20px"
+    }
+  }, badge.label), cls.teacher && React.createElement("span", {
+    style: {
+      fontSize: "12px",
+      fontWeight: "600",
+      color: "#374151"
+    }
+  }, "👤 " + cls.teacher)), cls.song && React.createElement("a", {
+    href: url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      fontSize: "12px",
+      color: color.text,
+      textDecoration: "none",
+      display: "block"
+    }
+  }, "♪ " + cls.song + (cls.artist ? " / " + cls.artist : "") + " ▶"));
+}
+function TimeSlot({
+  slot
+}) {
+  const cols = Math.min(3, slot.classes.length);
+  return React.createElement("div", {
+    style: {
+      marginBottom: "16px"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: "13px",
+      fontWeight: "700",
+      color: "#6B7280",
+      marginBottom: "8px",
+      padding: "3px 10px",
+      background: "#E5E7EB",
+      borderRadius: "4px",
+      display: "inline-block"
+    }
+  }, "🕐 " + slot.time), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(" + cols + ", 1fr)",
+      gap: "8px"
+    }
+  }, slot.classes.map((cls, i) => React.createElement(ClassCard, {
+    key: i,
+    cls
+  }))));
+}
+function Modal({
+  day,
+  data,
+  onClose
+}) {
+  if (!day) return null;
+  const date = new Date(YEAR, MONTH - 1, day);
+  const weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+  const wd = weekDays[date.getDay()];
+  return React.createElement("div", {
+    onClick: e => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    style: {
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.5)",
+      zIndex: 1000,
+      overflowY: "auto",
+      padding: "20px"
+    }
+  }, React.createElement("div", {
+    style: {
+      background: "#fff",
+      borderRadius: "16px",
+      maxWidth: "680px",
+      margin: "0 auto",
+      padding: "24px",
+      position: "relative"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "20px"
+    }
+  }, React.createElement("h2", {
+    style: {
+      fontSize: "20px",
+      fontWeight: "800",
+      color: "#1F2937"
+    }
+  }, YEAR + "年" + MONTH + "月" + day + "日（" + wd + "）"), React.createElement("button", {
+    onClick: onClose,
+    style: {
+      background: "#F3F4F6",
+      border: "none",
+      borderRadius: "50%",
+      width: "36px",
+      height: "36px",
+      fontSize: "18px",
+      cursor: "pointer",
+      color: "#6B7280"
+    }
+  }, "✕")), data.length === 0 ? React.createElement("p", {
+    style: {
+      color: "#9CA3AF",
+      textAlign: "center",
+      padding: "40px 0"
+    }
+  }, "この日のクラスはありません") : data.map((slot, i) => React.createElement(TimeSlot, {
+    key: i,
+    slot
+  }))));
+}
+function TeacherFilter({
+  teachers,
+  selected,
+  onToggle,
+  onClear
+}) {
+  return React.createElement("div", {
+    style: {
+      background: "#fff",
+      borderRadius: "12px",
+      padding: "16px",
+      marginBottom: "16px",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.08)"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "10px"
+    }
+  }, React.createElement("span", {
+    style: {
+      fontWeight: "700",
+      fontSize: "14px",
+      color: "#374151"
+    }
+  }, "👩‍🏫 先生で絞り込み"), selected.size > 0 && React.createElement("button", {
+    onClick: onClear,
+    style: {
+      fontSize: "12px",
+      color: "#6B7280",
+      background: "none",
+      border: "1px solid #D1D5DB",
+      borderRadius: "6px",
+      padding: "2px 8px",
+      cursor: "pointer"
+    }
+  }, "クリア")), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "6px"
+    }
+  }, teachers.map(t => React.createElement("button", {
+    key: t,
+    onClick: () => onToggle(t),
+    style: {
+      padding: "4px 12px",
+      borderRadius: "20px",
+      fontSize: "12px",
+      fontWeight: "600",
+      cursor: "pointer",
+      border: selected.has(t) ? "2px solid #6366F1" : "1px solid #D1D5DB",
+      background: selected.has(t) ? "#EDE9FE" : "#F9FAFB",
+      color: selected.has(t) ? "#4338CA" : "#4B5563"
+    }
+  }, t))));
+}
+function App() {
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedTeachers, setSelectedTeachers] = useState(new Set());
+  const allTeachers = useMemo(() => {
+    const set = new Set();
+    Object.values(scheduleByDay).forEach(slots => {
+      slots.forEach(slot => {
+        slot.classes.forEach(cls => {
+          cls.teacher.split(/[&＆、,，]/).map(t => t.trim()).filter(Boolean).forEach(t => set.add(t));
+        });
+      });
+    });
+    return Array.from(set).sort();
+  }, []);
+  const matchesFilter = teacher => {
+    if (selectedTeachers.size === 0) return true;
+    return teacher.split(/[&＆、,，]/).map(t => t.trim()).some(t => selectedTeachers.has(t));
+  };
+  const filteredSchedule = useMemo(() => {
+    if (selectedTeachers.size === 0) return scheduleByDay;
+    const result = {};
+    Object.entries(scheduleByDay).forEach(([day, slots]) => {
+      const filtered = slots.map(slot => ({
+        ...slot,
+        classes: slot.classes.filter(cls => matchesFilter(cls.teacher))
+      })).filter(slot => slot.classes.length > 0);
+      if (filtered.length > 0) result[parseInt(day)] = filtered;
+    });
+    return result;
+  }, [selectedTeachers]);
+  const firstDay = new Date(YEAR, MONTH - 1, 1).getDay();
+  const startOffset = (firstDay + 6) % 7;
+  const daysInMonth = new Date(YEAR, MONTH, 0).getDate();
+  const weekLabels = ["月", "火", "水", "木", "金", "土", "日"];
+  const cells = [];
+  for (let i = 0; i < startOffset; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+  const modalData = selectedDay ? filteredSchedule[selectedDay] || scheduleByDay[selectedDay] || [] : [];
+  return React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: "#F1F5F9",
+      padding: "16px"
+    }
+  }, React.createElement("div", {
+    style: {
+      maxWidth: "720px",
+      margin: "0 auto"
+    }
+  }, React.createElement("div", {
+    style: {
+      textAlign: "center",
+      marginBottom: "20px"
+    }
+  }, React.createElement("h1", {
+    style: {
+      fontSize: "24px",
+      fontWeight: "900",
+      color: "#1F2937",
+      letterSpacing: "-0.5px"
+    }
+  }, "💃 " + YEAR + "年" + MONTH + "月 ダンスクラス"), React.createElement("p", {
+    style: {
+      color: "#6B7280",
+      fontSize: "13px",
+      marginTop: "4px"
+    }
+  }, "日付をタップしてクラス詳細を確認")), React.createElement(TeacherFilter, {
+    teachers: allTeachers,
+    selected: selectedTeachers,
+    onToggle: t => setSelectedTeachers(prev => {
+      const next = new Set(prev);
+      next.has(t) ? next.delete(t) : next.add(t);
+      return next;
+    }),
+    onClear: () => setSelectedTeachers(new Set())
+  }), React.createElement("div", {
+    style: {
+      background: "#fff",
+      borderRadius: "12px",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+      overflow: "hidden"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(7, 1fr)"
+    }
+  }, weekLabels.map((w, i) => React.createElement("div", {
+    key: w,
+    style: {
+      textAlign: "center",
+      padding: "10px 0",
+      fontSize: "12px",
+      fontWeight: "700",
+      color: i === 5 ? "#3B82F6" : i === 6 ? "#EF4444" : "#6B7280",
+      background: "#F9FAFB",
+      borderBottom: "1px solid #E5E7EB"
+    }
+  }, w))), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(7, 1fr)"
+    }
+  }, cells.map((day, idx) => {
+    const hasClass = day && (filteredSchedule[day] !== undefined || scheduleByDay[day] !== undefined);
+    const hasFiltered = day && filteredSchedule[day] !== undefined;
+    const dow = idx % 7;
+    const isSat = dow === 5,
+      isSun = dow === 6;
+    const isToday = day === 29 && MONTH === 7 && YEAR === 2026;
+    return React.createElement("div", {
+      key: idx,
+      onClick: hasClass ? () => setSelectedDay(day) : undefined,
+      style: {
+        minHeight: "60px",
+        padding: "6px",
+        position: "relative",
+        borderRight: "1px solid #F3F4F6",
+        borderBottom: "1px solid #F3F4F6",
+        cursor: hasClass ? "pointer" : "default",
+        background: isToday ? "#EEF2FF" : hasFiltered ? "#FAFAFA" : !hasClass && day ? "#FAFAFA" : "#fff",
+        transition: "background 0.15s"
+      }
+    }, day && React.createElement("div", {
+      style: {
+        fontWeight: isToday ? "800" : "600",
+        fontSize: "13px",
+        color: isToday ? "#4338CA" : isSat ? "#3B82F6" : isSun ? "#EF4444" : "#374151",
+        width: "24px",
+        height: "24px",
+        borderRadius: "50%",
+        background: isToday ? "#C7D2FE" : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: "4px"
+      }
+    }, day), hasFiltered && React.createElement("div", {
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "3px"
+      }
+    }, filteredSchedule[day].flatMap(slot => slot.classes).slice(0, 4).map((cls, i) => {
+      const c = getGenreColor(cls.genre);
+      return React.createElement("div", {
+        key: i,
+        style: {
+          width: "8px",
+          height: "8px",
+          borderRadius: "50%",
+          background: c.bg
+        }
+      });
+    })), !hasFiltered && day && scheduleByDay[day] && selectedTeachers.size > 0 && React.createElement("div", {
+      style: {
+        fontSize: "10px",
+        color: "#D1D5DB"
+      }
+    }, "—"));
+  }))), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px",
+      marginTop: "16px",
+      padding: "12px",
+      background: "#fff",
+      borderRadius: "12px",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.08)"
+    }
+  }, Object.entries(GENRE_COLORS).map(([genre, color]) => React.createElement("div", {
+    key: genre,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "4px"
+    }
+  }, React.createElement("div", {
+    style: {
+      width: "10px",
+      height: "10px",
+      borderRadius: "50%",
+      background: color.bg
+    }
+  }), React.createElement("span", {
+    style: {
+      fontSize: "11px",
+      color: "#6B7280"
+    }
+  }, genre))))), React.createElement(Modal, {
+    day: selectedDay,
+    data: modalData,
+    onClose: () => setSelectedDay(null)
+  }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
