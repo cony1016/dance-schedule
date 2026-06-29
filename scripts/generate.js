@@ -148,12 +148,94 @@ function gc(g){const k=g.toLowerCase().replace(/\\s+/g,"");for(const[key,v]of Ob
 function bdg(t){if(t.includes("超入門"))return{label:"超入門",color:"#22C55E"};if(t.includes("初心者向け"))return{label:"初心者",color:"#3B82F6"};if(t.includes("入初級"))return{label:"入初級",color:"#6366F1"};if(t.includes("中級チャレンジ"))return{label:"中級挑戦",color:"#F59E0B"};if(t.includes("初級"))return{label:"初級",color:"#8B5CF6"};if(t.includes("中級"))return{label:"中級",color:"#EF4444"};if(t.includes("経験者向け"))return{label:"経験者",color:"#DC2626"};if(t.includes("基礎"))return{label:"基礎",color:"#10B981"};if(t.includes("ペア振り"))return{label:"ペア♀限定",color:"#EC4899"};return null;}
 const yt=(s,a)=>"https://www.youtube.com/results?search_query="+encodeURIComponent((s||"")+" "+(a||""));
 const SD=${scheduleJSON};
-function CC({cls}){const c=gc(cls.genre),b=bdg(cls.genre),u=yt(cls.song,cls.artist);return React.createElement("div",{style:{background:c.light,border:"1px solid "+c.bg,borderLeft:"4px solid "+c.bg,borderRadius:8,padding:"8px 10px",minWidth:0}},React.createElement("div",{style:{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",marginBottom:3}},React.createElement("span",{style:{background:c.bg,color:"#fff",fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap"}},cls.genre.split(" ")[0]),b&&React.createElement("span",{style:{background:b.color,color:"#fff",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:20}},b.label),cls.teacher&&React.createElement("span",{style:{fontSize:11,fontWeight:600,color:"#374151"}},"👤 "+cls.teacher)),cls.song&&React.createElement("a",{href:u,target:"_blank",rel:"noopener noreferrer",style:{fontSize:11,color:c.text,textDecoration:"none",display:"block",marginTop:2}},"♪ "+cls.song+(cls.artist?" / "+cls.artist:"")+" ▶"));}
-function TS({slot}){const cols=Math.min(3,slot.classes.length);return React.createElement("div",{style:{marginBottom:14}},React.createElement("div",{style:{fontSize:12,fontWeight:700,color:"#6B7280",marginBottom:6,padding:"2px 8px",background:"#E5E7EB",borderRadius:4,display:"inline-block"}},"🕐 "+slot.time),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat("+cols+",1fr)",gap:6}},slot.classes.map((cls,i)=>React.createElement(CC,{key:i,cls}))));}
+function CC({cls}){const c=gc(cls.genre),b=bdg(cls.genre),u=yt(cls.song,cls.artist);return React.createElement("div",{style:{background:c.light,border:"1px solid "+c.bg,borderLeft:"4px solid "+c.bg,borderRadius:8,padding:"8px 10px",minWidth:0}},React.createElement("div",{style:{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap",marginBottom:3}},React.createElement("span",{style:{background:c.bg,color:"#fff",fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap"}},cls.genre.split(" ")[0]),b&&React.createElement("span",{style:{background:b.color,color:"#fff",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:20}},b.label),cls.teacher&&React.createElement("span",{style:{fontSize:11,fontWeight:600,color:"#374151"}}," "+cls.teacher)),cls.song&&React.createElement("a",{href:u,target:"_blank",rel:"noopener noreferrer",style:{fontSize:11,color:c.text,textDecoration:"none",display:"block",marginTop:2}},"♪ "+cls.song+(cls.artist?" / "+cls.artist:"")+" ▶"));}
+function TS({slot}){const cols=Math.min(3,slot.classes.length);return React.createElement("div",{style:{marginBottom:14}},React.createElement("div",{style:{fontSize:12,fontWeight:700,color:"#6B7280",marginBottom:6,padding:"2px 8px",background:"#E5E7EB",borderRadius:4,display:"inline-block"}}," "+slot.time),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat("+cols+",1fr)",gap:6}},slot.classes.map((cls,i)=>React.createElement(CC,{key:i,cls}))));}
 function Modal({day,data,onClose}){if(!day)return null;const wd=["日","月","火","水","木","金","土"][new Date(YEAR,MONTH-1,day).getDay()];return React.createElement("div",{onClick:e=>{if(e.target===e.currentTarget)onClose();},style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,overflowY:"auto",padding:16,display:"flex",alignItems:"flex-start",justifyContent:"center"}},React.createElement("div",{style:{background:"#fff",borderRadius:16,width:"100%",maxWidth:640,padding:20,marginTop:8}},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}},React.createElement("h2",{style:{fontSize:17,fontWeight:800,color:"#1F2937"}},YEAR+"年"+MONTH+"月"+day+"日（"+wd+"）"),React.createElement("button",{onClick:onClose,style:{background:"#F3F4F6",border:"none",borderRadius:"50%",width:32,height:32,fontSize:16,cursor:"pointer",color:"#6B7280"}},"✕")),data.length===0?React.createElement("p",{style:{color:"#9CA3AF",textAlign:"center",padding:"30px 0"}},"この日のクラスはありません"):data.map((slot,i)=>React.createElement(TS,{key:i,slot}))));}
 function TF({teachers,selected,onToggle,onClear}){return React.createElement("div",{style:{background:"#fff",borderRadius:10,padding:12,marginBottom:12,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}},React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}},React.createElement("span",{style:{fontWeight:700,fontSize:12,color:"#374151"}},"👩\u200d🏫 先生で絞り込み"),selected.size>0&&React.createElement("button",{onClick:onClear,style:{fontSize:11,color:"#6B7280",background:"none",border:"1px solid #D1D5DB",borderRadius:5,padding:"1px 7px",cursor:"pointer"}},"クリア")),React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:5}},teachers.map(t=>React.createElement("button",{key:t,onClick:()=>onToggle(t),style:{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",border:selected.has(t)?"2px solid #6366F1":"1px solid #D1D5DB",background:selected.has(t)?"#EDE9FE":"#F9FAFB",color:selected.has(t)?"#4338CA":"#4B5563"}},t))));}
-function App(){const[day,setDay]=useState(null);const[selT,setSelT]=useState(new Set());const allT=useMemo(()=>{const s=new Set();Object.values(SD).forEach(slots=>slots.forEach(slot=>slot.classes.forEach(cls=>{cls.teacher.split(/[&＆、,，]/).map(t=>t.trim()).filter(Boolean).forEach(t=>s.add(t));})));return Array.from(s).sort();},[]);const match=t=>{if(selT.size===0)return true;return t.split(/[&＆、,，]/).map(x=>x.trim()).some(x=>selT.has(x));};const fSD=useMemo(()=>{if(selT.size===0)return SD;const r={};Object.entries(SD).forEach(([d,slots])=>{const f=slots.map(s=>({...s,classes:s.classes.filter(c=>match(c.teacher))})).filter(s=>s.classes.length>0);if(f.length>0)r[+d]=f;});return r;},[selT]);const first=new Date(YEAR,MONTH-1,1).getDay();const off=(first+6)%7;const dim=new Date(YEAR,MONTH,0).getDate();const wl=["月","火","水","木","金","土","日"];const cells=[];for(let i=0;i<off;i++)cells.push(null);for(let d=1;d<=dim;d++)cells.push(d);while(cells.length%7!==0)cells.push(null);const modalData=day?(fSD[day]||SD[day]||[]):[];
-return React.createElement("div",{style:{minHeight:"100vh",background:"#F1F5F9",padding:12}},React.createElement("div",{style:{maxWidth:700,margin:"0 auto"}},React.createElement("div",{style:{textAlign:"center",marginBottom:14}},React.createElement("h1",{style:{fontSize:20,fontWeight:900,color:"#1F2937"}},"💃 "+YEAR+"年"+MONTH+"月 ダンスクラス"),React.createElement("p",{style:{color:"#9CA3AF",fontSize:12,marginTop:3}},"日付をタップしてクラス詳細を確認")),React.createElement(TF,{teachers:allT,selected:selT,onToggle:t=>setSelT(prev=>{const n=new Set(prev);n.has(t)?n.delete(t):n.add(t);return n;}),onClear:()=>setSelT(new Set())}),React.createElement("div",{style:{background:"#fff",borderRadius:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",overflow:"hidden",marginBottom:12}},React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},wl.map((w,i)=>React.createElement("div",{key:w,style:{textAlign:"center",padding:"8px 0",fontSize:11,fontWeight:700,color:i===5?"#3B82F6":i===6?"#EF4444":"#6B7280",background:"#F9FAFB",borderBottom:"1px solid #E5E7EB"}},w))),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},cells.map((d,idx)=>{const hasF=d&&fSD[d]!==undefined,hasAny=d&&SD[d]!==undefined;const dow=idx%7,isSat=dow===5,isSun=dow===6;return React.createElement("div",{key:idx,onClick:hasAny?()=>setDay(d):undefined,style:{minHeight:56,padding:5,borderRight:"1px solid #F3F4F6",borderBottom:"1px solid #F3F4F6",cursor:hasAny?"pointer":"default",background:"#fff"}},d&&React.createElement("div",{style:{fontWeight:600,fontSize:12,color:isSat?"#3B82F6":isSun?"#EF4444":"#374151",width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:3}},d),hasF&&React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:2}},fSD[d].flatMap(s=>s.classes).slice(0,5).map((cls,i)=>{const c=gc(cls.genre);return React.createElement("div",{key:i,style:{width:7,height:7,borderRadius:"50%",background:c.bg}});})));})));},React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6,padding:10,background:"#fff",borderRadius:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}},Object.entries(GC).map(([g,c])=>React.createElement("div",{key:g,style:{display:"flex",alignItems:"center",gap:3}},React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",background:c.bg}}),React.createElement("span",{style:{fontSize:10,color:"#6B7280"}},g))))),React.createElement(Modal,{day,data:modalData,onClose:()=>setDay(null)}));}
+function App(){
+  var dayState=useState(null);
+  var day=dayState[0],setDay=dayState[1];
+  var selTState=useState(new Set());
+  var selT=selTState[0],setSelT=selTState[1];
+  var allT=useMemo(function(){
+    var s=new Set();
+    Object.values(SD).forEach(function(slots){
+      slots.forEach(function(slot){
+        slot.classes.forEach(function(cls){
+          cls.teacher.split(/[&＆、,，]/).map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){s.add(t);});
+        });
+      });
+    });
+    return Array.from(s).sort();
+  },[]);
+  function match(t){
+    if(selT.size===0)return true;
+    return t.split(/[&＆、,，]/).map(function(x){return x.trim();}).some(function(x){return selT.has(x);});
+  }
+  var fSD=useMemo(function(){
+    if(selT.size===0)return SD;
+    var r={};
+    Object.entries(SD).forEach(function(entry){
+      var d=entry[0],slots=entry[1];
+      var f=slots.map(function(s){
+        return {time:s.time,classes:s.classes.filter(function(c){return match(c.teacher);})};
+      }).filter(function(s){return s.classes.length>0;});
+      if(f.length>0)r[+d]=f;
+    });
+    return r;
+  },[selT]);
+  var first=new Date(YEAR,MONTH-1,1).getDay();
+  var off=(first+6)%7;
+  var dim=new Date(YEAR,MONTH,0).getDate();
+  var wl=["月","火","水","木","金","土","日"];
+  var cells=[];
+  for(var i=0;i<off;i++)cells.push(null);
+  for(var d=1;d<=dim;d++)cells.push(d);
+  while(cells.length%7!==0)cells.push(null);
+  var modalData=day?(fSD[day]||SD[day]||[]):[];
+  var weekRow=React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},
+    wl.map(function(w,i){return React.createElement("div",{key:w,style:{textAlign:"center",padding:"8px 0",fontSize:11,fontWeight:700,color:i===5?"#3B82F6":i===6?"#EF4444":"#6B7280",background:"#F9FAFB",borderBottom:"1px solid #E5E7EB"}},w);})
+  );
+  var dayCells=React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}},
+    cells.map(function(d,idx){
+      var hasF=d&&fSD[d]!==undefined;
+      var hasAny=d&&SD[d]!==undefined;
+      var dow=idx%7,isSat=dow===5,isSun=dow===6;
+      var numEl=d?React.createElement("div",{style:{fontWeight:600,fontSize:12,color:isSat?"#3B82F6":isSun?"#EF4444":"#374151",width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:3}},d):null;
+      var dotsEl=hasF?React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:2}},
+        fSD[d].reduce(function(a,s){return a.concat(s.classes);},[]).slice(0,5).map(function(cls,i){
+          var c=gc(cls.genre);
+          return React.createElement("div",{key:i,style:{width:7,height:7,borderRadius:"50%",background:c.bg}});
+        })
+      ):null;
+      return React.createElement("div",{key:idx,onClick:hasAny?function(){setDay(d);}:undefined,style:{minHeight:56,padding:5,borderRight:"1px solid #F3F4F6",borderBottom:"1px solid #F3F4F6",cursor:hasAny?"pointer":"default",background:"#fff"}},numEl,dotsEl);
+    })
+  );
+  var legend=React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6,padding:10,background:"#fff",borderRadius:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}},
+    Object.entries(GC).map(function(entry){
+      var g=entry[0],c=entry[1];
+      return React.createElement("div",{key:g,style:{display:"flex",alignItems:"center",gap:3}},
+        React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",background:c.bg}}),
+        React.createElement("span",{style:{fontSize:10,color:"#6B7280"}},g)
+      );
+    })
+  );
+  return React.createElement("div",{style:{minHeight:"100vh",background:"#F1F5F9",padding:12}},
+    React.createElement("div",{style:{maxWidth:700,margin:"0 auto"}},
+      React.createElement("div",{style:{textAlign:"center",marginBottom:14}},
+        React.createElement("h1",{style:{fontSize:20,fontWeight:900,color:"#1F2937"}},"Dance "+YEAR+"年"+MONTH+"月"),
+        React.createElement("p",{style:{color:"#9CA3AF",fontSize:12,marginTop:3}},"日付をタップして詳細を確認")
+      ),
+      React.createElement(TF,{teachers:allT,selected:selT,
+        onToggle:function(t){setSelT(function(prev){var n=new Set(prev);n.has(t)?n.delete(t):n.add(t);return n;});},
+        onClear:function(){setSelT(new Set());}
+      }),
+      React.createElement("div",{style:{background:"#fff",borderRadius:10,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",overflow:"hidden",marginBottom:12}},weekRow,dayCells),
+      legend
+    ),
+    React.createElement(Modal,{day:day,data:modalData,onClose:function(){setDay(null);}})
+  );
+}
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 <\/script>
 </body>
